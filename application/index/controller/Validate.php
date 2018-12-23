@@ -21,6 +21,7 @@ class Validate extends Controller
     {
         parent::__construct($app);
 //        $this->isLogin();
+        $this->setRequestCookie();
     }
     private function isLogin(){
         $uid=$this->request->session("uid");
@@ -33,9 +34,8 @@ class Validate extends Controller
             $this->level=$this->request->session("level");
         }
     }
-    public function varsVerify(){
-        //请求参数合法性检测
-        $vars=$this->request->param();
+    public function setRequestCookie(){
+        \think\facade\Cookie::set("request_time",time());
     }
 
 }

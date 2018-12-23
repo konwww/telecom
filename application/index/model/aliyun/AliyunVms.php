@@ -23,6 +23,10 @@ class AliyunVms extends Model implements VmsInterface
     public $accessKeySecret;
     public $accessKeyId;
     public $showNum;
+    public $voiceCode;
+    public $id;
+    protected $table;
+    public $autoWriteTimestamp="Y-m-d H:i:s";
 
     public function __construct($data = [])
     {
@@ -31,24 +35,25 @@ class AliyunVms extends Model implements VmsInterface
         $this->accessKeySecret = $vars["accessKeySecret"];
         $this->accessKeyId = $vars["accessKeyId"];
         $this->showNum = $vars["showNum"];
+        $this->voiceCode=$vars["voiceCode"];
+        $this->save();
     }
 
     /**
      * @param $phone
-     * @param string $voiceCode
      * @return MsgLog
      */
-    public function singleCall($phone, $voiceCode = "")
+    public function singleCall($phone)
     {
         //单独发送一条语音通知
-        $response = self::singleCallByVoice($this->showNum, $phone, $voiceCode);
+        $response = self::singleCallByVoice($this->showNum, $phone, $this->voiceCode);
         return $this->status($phone, $response);
     }
 
-    public function batchCall($phone_list, $voiceCode = "")
+    public function batchCall($phone_list)
     {
         for ($i = 0; $i <= count($phone_list); $i++) {
-            $response = self::singleCallByVoice($this->showNum, $phone_list[$i], $voiceCode);
+            $response = self::singleCallByVoice($this->showNum, $phone_list[$i],$this->voiceCode);
             $this->status($phone_list[$i], $response);
         }
     }
@@ -68,11 +73,18 @@ class AliyunVms extends Model implements VmsInterface
                 "remarks" => "RequestId: " . $response["RequestId"] . ";Called: " . $response["called"]
             ]);
     }
-    public function redial($rid_list,$voiceCode){
+
+    /**
+     * @param $rid_list
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function redial($rid_list){
         $msg_log=new MsgLog();
         $data=$msg_log->whereIn("rid",$rid_list)->field(["rid","phone"])->select();
         foreach ($data as $item){
-            $response = self::singleCallByVoice($this->showNum, $item["phone"], $voiceCode);
+            $response = self::singleCallByVoice($this->showNum, $item["phone"], $this->voiceCode);
             //更新通话状态
             $status = $response["code"] == "OK" ? "success" : "failed";
             $msg_log::update([

@@ -11,7 +11,7 @@ namespace app\index\model;
 
 interface VmsInterface
 {
-    public function singleCall($phone,$voiceCode="");
+    public function singleCall($phone);
     public function status($phone,$response);
-    public function batchCall($phone_list,$voiceCode="");
+    public function batchCall($phone_list);
 }

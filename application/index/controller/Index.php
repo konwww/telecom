@@ -1,8 +1,6 @@
 <?php
 namespace app\index\controller;
 
-use app\index\model\Xlsx;
-
 class Index extends Validate
 {
     public function index(){
@@ -11,10 +9,13 @@ class Index extends Validate
     public function status($phone=""){
 
     }
-    public function callAgain($phone_list){
+    public function redial($phone_list){
 
     }
-    public function test(){
+    public function singleCall(){
+
+    }
+    public function batchCall(){
 
     }
 }

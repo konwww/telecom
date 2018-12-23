@@ -36,7 +36,18 @@ class Msg extends Model
 
     public function singleCall($phone)
     {
-        $this->vms->singleCall($phone, $this->voiceCode);
+        $this->vms->singleCall($phone);
+    }
+
+    /**
+     * @param $phone_list
+     * @return bool|void
+     */
+    public function batchCall($phone_list)
+    {
+        if(empty($phone_list))return false;
+
+        $this->vms->batchCall($phone_list);
     }
 
     /**
@@ -48,13 +59,13 @@ class Msg extends Model
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function statusGetter($rid="", $phone="")
+    public function statusGetter($rid = "", $phone = "")
     {
-        $msg_log=new MsgLog();
-        $expression=[];
-        if (empty($rid))$expression["rid"]=$rid;
-        if (empty($phone))$expression["phone"]=$phone;
-        $records=$msg_log->where($expression)->select();
+        $msg_log = new MsgLog();
+        $expression = [];
+        if (empty($rid)) $expression["rid"] = $rid;
+        if (empty($phone)) $expression["phone"] = $phone;
+        $records = $msg_log->where($expression)->select();
         return $records;
     }
 
@@ -63,20 +74,21 @@ class Msg extends Model
      * @param string $rid 为空表示重拨所有失败记录
      * @throws \think\Exception\DbException
      */
-    public function redialByFailedRecords($rid = "")
+    public function redialByFailedRecords($rid)
     {
         //todo voiceCode
         $msg_log = new MsgLog();
         if (!empty($rid)) {
-            $this->vms->redial([$rid],"");
-        }else{
-            $records=$msg_log->all();
-            $rid_list=[];
-            foreach ($records as $item){
-                $rid_list[]=$item["rid"];
+            $rid_list = array($rid);
+        } else {
+            $records = $msg_log->all();
+            $rid_list = [];
+            foreach ($records as $item) {
+                $rid_list[] = $item["rid"];
             }
-            $this->vms->redial($rid_list,"");
         }
+        $this->vms->redial($rid_list);
+
     }
 
 }

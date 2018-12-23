@@ -21,16 +21,36 @@ class Msg extends Validate
         parent::__construct($app);
     }
 
-    public function send($filename)
+    /**
+     * excel文件批量呼叫
+     * @param $filename
+     */
+    public function batchCall($filename)
     {
         $data = Xlsx::import_excel($filename);
-        $msg_list = [];
+        $phone_list=[];
         //重构数组
         foreach ($data as $item) {
             //通过比较获取差集(去除号码部分后剩余变量)
-            $msg_list[$item[1]] = array_diff(array($item[1]), $item);
+            $phone_list[] = $item[1];
         }
         $msg=new \app\index\model\Msg();
-        $msg->send($this->vms);
+        $msg->batchCall($phone_list);
+    }
+
+    /**
+     * 单呼
+     * @param $phone
+     */
+    public function singleCall($phone){
+
+    }
+
+    /**
+     * 重拨
+     * @param $rid
+     */
+    public function redial($rid){
+
     }
 }
