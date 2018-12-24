@@ -45,6 +45,7 @@ class Msg extends Model
     public function batchCall()
     {
         $phone=new PhoneItem();
+        $this->vms=new AliyunVms();
         $phone_list=$phone->order("order_id","asc")->select();
         return $this->vms->batchCall($phone_list);
 

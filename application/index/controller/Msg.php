@@ -27,76 +27,73 @@ class Msg extends Validate
      * excel文件批量呼叫
      * @param $filename
      * @param $voiceCode
-     * @return string
      */
 
     public function batchCall($filename, $voiceCode)
     {
         $filename = "../uploads/" . $filename;
-//        $url = parse_url($this->request->domain()."/index.php/api/queue_push?filename=".urlencode($filename));
-//        dump($url);
-        $url=$this->request->domain()."/index.php/api/queue_push";
-        return $this->sock_data($url,80,null,null,["filename"=>$filename]);
+        $url = $this->request->domain() . "/index.php/api/queue_push";
+        $this->sock_data($url, 80, null, null, ["filename" => $filename, "voiceCode" => "", "secret" => ""]) ? $this->success("上传成功") : $this->error("上传失败");
     }
 
-    /**fsockopen 抓取页面
+    public function getCalledRecords($times_id="",$page=0,$limit=30)
+    {
+        $log=new MsgLog();
+        if (empty($times_id)){
+            $data=$log->page($page,$limit)->where(["times_id"=>$times_id])->select();
+        }else{
+            $data=$log->page($page,$limit)->select();
+        }
+
+    }
+
+    /**fsockopen 异步调用api
      * @parem $url 网页地址 host 主机地址
      * @parem $port 网址端口 默认80
      * @parem $t 脚本请求时间 默认30s
      * @parem $method 请求方式 get/post
      * @parem $data 如果单独传数据为 post 方式
-     * @return 返回请求回的数据
+     * @return bool
      * */
-    function sock_data($url,$port=80,$t=30,$method='get',$data=null)
+    function sock_data($url, $port = 80, $t = 30, $method = 'get', $data = null)
     {
-        $info=parse_url($url);
-        $fp = fsockopen($info["host"],$port, $errno, $errstr,$t);
-        stream_set_blocking($fp,true);//开启了手册上说的非阻塞模式
-        stream_set_timeout($fp,1);//设置超时
+        $info = parse_url($url);
+        $fp = fsockopen($info["host"], $port, $errno, $errstr, $t);
+        stream_set_blocking($fp, true);//开启了手册上说的非阻塞模式
+        stream_set_timeout($fp, 1);//设置超时
         // 判断是否有数据
-        if(isset($data) && !empty($data))
-        {
+        if (isset($data) && !empty($data)) {
             $query = http_build_query($data); // 数组转url 字符串形式
-        }else
-        {
-            $query=null;
+        } else {
+            $query = null;
         }
         // 如果用户的$url "http://www.manongjc.com/";  缺少 最后的反斜杠
-        if(!isset($info['path']) || empty($info['path']))
-        {
-            $info['path']="/index.html";
+        if (!isset($info['path']) || empty($info['path'])) {
+            $info['path'] = "/index.html";
         }
         // 判断 请求方式
-        if($method=='post')
-        {
-            $head = "POST ".$info['path']." HTTP/1.0".PHP_EOL;
-        }else
-        {
-            $head = "GET ".$info['path']."?".$query." HTTP/1.0".PHP_EOL;
+        if ($method == 'post') {
+            $head = "POST " . $info['path'] . " HTTP/1.0" . PHP_EOL;
+        } else {
+            $head = "GET " . $info['path'] . "?" . $query . " HTTP/1.0" . PHP_EOL;
         }
 
-        $head .= "Host: ".$info['host'].PHP_EOL; // 请求主机地址
-        $head .= "Referer: http://".$info['host'].$info['path'].PHP_EOL;
-        if(isset($data) && !empty($data) && ($method=='post'))
-        {
-            $head .= "Content-type: application/x-www-form-urlencoded".PHP_EOL;
-            $head .= "Content-Length: ".strlen(trim($query)).PHP_EOL;
+        $head .= "Host: " . $info['host'] . PHP_EOL; // 请求主机地址
+        $head .= "Referer: http://" . $info['host'] . $info['path'] . PHP_EOL;
+        if (isset($data) && !empty($data) && ($method == 'post')) {
+            $head .= "Content-type: application/x-www-form-urlencoded" . PHP_EOL;
+            $head .= "Content-Length: " . strlen(trim($query)) . PHP_EOL;
             $head .= PHP_EOL;
             $head .= trim($query);
-        }else
-        {
+        } else {
             $head .= PHP_EOL;
         }
         $write = fputs($fp, $head); //写入文件(可安全用于二进制文件)。 fputs() 函数是 fwrite() 函数的别名
-        dump($write);
         //使nginx异步生效
         usleep(1000);
-//        while (!feof($fp))
-//        {
-//            $line = fread($fp,4096);
-//            echo $line;
-//        }
+        return true;
     }
+
     /**
      * 单呼
      * @param $phone
@@ -136,7 +133,7 @@ class Msg extends Validate
             $this->batchCall($info->getSaveName(), "test.wav");
         } else {
             // 上传失败获取错误信息
-            echo $file->getError();
+            $this->error("上传失败 错误信息:" . $file->getError(), null, null, 0);
         }
     }
 

@@ -19,6 +19,7 @@ return [
     "[api]"=>[
         "upload"=>["index/Msg/upload"]
         ,"queue_push"=>["index/Socket/xlsxQueuePush"]
+        ,"queue_pop"=>["index/Socket/vmsStartCall"]
     ]
     ,"[index]"=>[
         "index"=>["index/Index/index"]
