@@ -20,7 +20,7 @@ class User extends Model
     public $level;
     protected $create_at;
     protected $update_at;
-    public $autoWriteTimestamp="Y-m-d H:i:s";
+    public $autoWriteTimestamp="datetime";
     protected $createTime="create_at";
     protected $updateTime="update_at";
     public function __construct($data = [])

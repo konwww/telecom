@@ -4,7 +4,7 @@ namespace app\index\controller;
 class Index extends Validate
 {
     public function index(){
-        return $this->fetch();
+        return $this->fetch("Index/upload");
     }
     public function status($phone=""){
 

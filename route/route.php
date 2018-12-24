@@ -16,5 +16,11 @@ Route::get('think', function () {
 Route::get('hello/:name', 'index/hello');
 
 return [
-
+    "[api]"=>[
+        "upload"=>["index/Msg/upload"]
+        ,"queue_push"=>["index/Socket/xlsxQueuePush"]
+    ]
+    ,"[index]"=>[
+        "index"=>["index/Index/index"]
+    ]
 ];

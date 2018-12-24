@@ -15,7 +15,7 @@ use think\Model;
 class Msg extends Model
 {
     public $voiceCode;
-    public $autoWriteTimestamp = "Y-m-d H:i:s";
+    public $autoWriteTimestamp = "datetime";
     private $vms;
 
     public function __construct($data = [])
@@ -41,13 +41,13 @@ class Msg extends Model
 
     /**
      * @param $phone_list
-     * @return bool|void
      */
-    public function batchCall($phone_list)
+    public function batchCall()
     {
-        if(empty($phone_list))return false;
+        $phone=new PhoneItem();
+        $phone_list=$phone->order("order_id","asc")->select();
+        return $this->vms->batchCall($phone_list);
 
-        $this->vms->batchCall($phone_list);
     }
 
     /**
@@ -88,7 +88,6 @@ class Msg extends Model
             }
         }
         $this->vms->redial($rid_list);
-
     }
 
 }

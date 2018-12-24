@@ -15,10 +15,12 @@ class MsgLog extends Model
 {
     protected $table="ms_msg_log";
     public $mid;
-    protected $pk="mid";
     public $status;
     public $phone;
     public $errorMsg;
     public $remarks;
-    public $autoWriteTimestamp="Y-m-d H:i:s";
+    public $voiceCode;
+    public $times_id;
+    public $autoWriteTimestamp="datetime";
+    protected $pk="mid";
 }
